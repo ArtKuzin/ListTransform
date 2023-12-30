@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ListTransform</title>
+	<link rel="icon" href="favicon.png" type="image/png">
+    <style>
+        body {
+            margin: 0;
+			overflow: hidden;
+			font-family: 'Arial', 'Helvetica', sans-serif;
+        }
+	
+        #bbox {
+			margin-top: 1.2vh;
+			margin-left: 51vw;
+			font-weight: 550;
+			width: 3vw;
+			color: #005cd6;
+			cursor: pointer;
+			transition: color 0.1s ease, text-decoration 0.1s ease;
+		}
+		
+		#bbox:hover {
+			text-decoration: underline;
+			color: #2980b9;
+		}
+		
+		.copied {
+			color: green !important;
+		}
+		
+		#textbox-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 28vh; /* Adjusted height to make room for the settings section */
+            padding: 5px 20px; /* Decreased vertical padding */
+        }
+		
+		.textbox {
+            flex: 1;
+            height: 100%;
+            margin: 0 5px; /* Decreased horizontal margin */
+            border: 1px solid #000;
+            resize: none;
+            padding: 10px;
+            box-sizing: border-box;
+            font-size: 16px;
+			white-space: nowrap;
+			overflow-x: auto;
+        }
+		
+		#counter-container {
+			display: flex;
+			margin-bottom: 2vh;
+		}
+		
+		#counterA {
+			margin-left: 2vw;
+			width: 48.7vw;
+			color: #666
+		}
+		
+		#counterB {
+			color: #666
+		}
+
+        #settings-section {
+            background-color: #f0ecec;
+            padding: 5px 20px; /* Decreased vertical padding */
+            margin: 5px; /* Decreased margin */
+        }
+
+        #settings-section h2 {
+            font-size: 24px; /* Slightly larger font size for the title */
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        #settings-section p {
+            font-weight: 600; /* Bolder font weight for text in the section */
+        }
+		
+		#settings-section label {
+            font-weight: 600; /* Bolder font weight for text in the section */
+        }
+
+		.toggle-container {
+			display: flex;
+			align-items: center;
+		}
+		
+		.toggle-container p {
+			margin-right: 10px;
+		}
+
+		.toggle-container label {
+			cursor: pointer;
+			padding: 8px 16px; /* ORIGINAL 5px 10px */
+			margin-right: 10px; /* Adjust this value for spacing between buttons */
+			background-color: #f0f0f0;
+			border: 1px solid #ccc;
+			border-radius: 5px;
+			text-align: center;
+			flex-shrink: 0; /* Prevent flex items from shrinking */
+		}
+
+		.toggle-container input[type="radio"] {
+			display: none;
+		}
+
+		.toggle-container input[type="radio"]:checked + label {
+			background-color: #4caf50;
+			color: #fff;
+		}
+		
+		#resetButton {
+			cursor: pointer;
+			padding: 5px 10px;
+			background-color: #f0f0f0;
+			border: 1px solid #ccc;
+			border-radius: 5px;
+			margin-left: 20px; /* Adjust this value for spacing */
+			margin-top: 3px;
+			transition: background-color 0.1s ease, box-shadow 0.1s ease;
+		}
+		
+		#resetButton:hover {
+			background-color: #e0e0e0; /* Change background color on hover */
+			box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add a shadow effect on hover */
+		}
+		
+		#resetButton:active {
+			background-color: #d0d0d0; /* Darken the background color when the button is pressed */
+			box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1); /* Add a slight shadow effect when the button is pressed */
+			transform: translateY(1px); /* Add a slight vertical displacement when the button is pressed */
+		}
+		
+		#settings-section h2 {
+			display: flex;
+			align-items: center;
+		}
+
+    </style>
+</head>
+<body>
+	<div id="bbox" onclick="manualCopy()">Copy</div>
+    <div id="textbox-container">
+        <textarea class="textbox" id="textboxA"></textarea>
+        <textarea class="textbox" id="textboxB"></textarea>
+    </div>
+	<div id="counter-container">
+        <div id="counterA">Lines: <span id="numA"></span></div>
+		<div id="counterB">Items: <span id="numB"></span></div>
+    </div>
+
+    <div id="settings-section">
+        <h2>Settings
+			<button id="resetButton">Reset</button>
+		</h2>
+
+        <p>Delimiter: <input type="text" value="," id="delim" /></p>
+
+        <p>
+            Item Prefix: <input type="text" id="itemPrefix" /> Suffix: <input type="text" id="itemSuffix" />
+        </p>
+
+        <p>
+            List Prefix: <input type="text" id="listPrefix" /> Suffix: <input type="text" id="listSuffix" />
+        </p>
+
+		<div class="toggle-container">
+			<p>Quotes:</p>
+			<input type="radio" id="none" name="quoteType" value="None" checked />
+			<label for="none">None</label>
+
+			<input type="radio" id="double" name="quoteType" value="Double" />
+			<label for="double">Double</label>
+
+			<input type="radio" id="single" name="quoteType" value="Single" />
+			<label for="single">Single</label>
+		</div>
+
+        <div class="toggle-container">
+			<p>Case:</p>
+			<input type="radio" id="regular" name="caseType" value="Regular" checked />
+			<label for="regular">Regular</label>
+
+			<input type="radio" id="upper" name="caseType" value="Upper" />
+			<label for="upper">Upper</label>
+
+			<input type="radio" id="lower" name="caseType" value="Lower" />
+			<label for="lower">Lower</label>
+		</div>
+
+        <p>
+            <input type="checkbox" id="checkReverse" /> Reverse list
+        </p>
+		
+        <p>
+            <input type="checkbox" id="checkSpacing" /> Remove extra spaces
+        </p>
+
+        <p>
+            <input type="checkbox" id="checkWhitespace" /> Remove all whitespace
+        </p>
+
+        <p>
+            <input type="checkbox" id="checkDuplicate" /> Remove duplicates
+        </p>
+    </div>
+	
+    <script>
+		// Function to update itemPrefix and itemSuffix based on the selected quote type
+        function updateQuoteType() {
+            var quoteType = document.querySelector('input[name="quoteType"]:checked').value;
+            var itemPrefix = document.getElementById("itemPrefix");
+            var itemSuffix = document.getElementById("itemSuffix");
+
+            switch (quoteType) {
+                case "Double":
+                    itemPrefix.value = itemSuffix.value = '"';
+                    break;
+                case "Single":
+                    itemPrefix.value = itemSuffix.value = "'";
+                    break;
+                default:
+                    itemPrefix.value = itemSuffix.value = "";
+                    break;
+            }
+
+            // Trigger the processText function after updating the textboxes
+            processText();
+        }
+
+        // Attach the updateQuoteType function to radio button change events
+        var radioButtons = document.querySelectorAll('input[name="quoteType"]');
+        radioButtons.forEach(function (radioButton) {
+            radioButton.addEventListener("change", updateQuoteType);
+        });
+		
+	
+        // Function to process the text and set it in textboxB
+        function processText() {
+            // Get the values from the textboxes and the delimiter input
+            var textA = document.getElementById("textboxA").value;
+			var delim = document.getElementById("delim").value;
+			var itemPrefix = document.getElementById("itemPrefix").value;
+			var itemSuffix = document.getElementById("itemSuffix").value;
+			var listPrefix = document.getElementById("listPrefix").value;
+			var listSuffix = document.getElementById("listSuffix").value;
+			var caseType = document.querySelector('input[name="caseType"]:checked').value;
+			var checkReverse = document.getElementById("checkReverse").checked;
+			var checkSpacing = document.getElementById("checkSpacing").checked;
+			var checkWhitespace = document.getElementById("checkWhitespace").checked;
+			var checkDuplicate = document.getElementById("checkDuplicate").checked;
+			
+			// Split the textA into an array of items
+			var items = textA.split(/\n/);
+			
+			// Update counterA
+			if (textA === "") {
+				document.getElementById("numA").textContent = "";
+			} else {
+				var lineCountA = textA.split(/\n/).length;
+				document.getElementById("numA").textContent = lineCountA;
+			}
+			
+			// Process each item and add itemPrefix and itemSuffix
+			var processedItems = items.map(function (item) {
+				// Remove extra spaces from the sides if the checkbox is checked
+				if (checkSpacing) {
+					item = item.trim();
+				}
+
+				// Remove all whitespaces if the checkbox is checked
+				if (checkWhitespace) {
+					item = item.replace(/\s/g, '');
+				}
+				
+				switch (caseType) {
+                    case "Upper":
+                        item = item.toUpperCase();
+                        break;
+                    case "Lower":
+                        item = item.toLowerCase();
+                        break;
+                    // "Regular" case doesn't change anything
+                }
+
+				return itemPrefix + item + itemSuffix;
+			});
+			
+			// Remove duplicates if the checkbox is checked
+			if (checkDuplicate) {
+				processedItems = Array.from(new Set(processedItems));
+			}
+			
+			// Update counterB
+			if (textA === "") {
+				document.getElementById("numB").textContent = "";
+			} else {
+				var itemCountB = processedItems.length;
+				document.getElementById("numB").textContent = itemCountB;
+			}
+			
+			// Reverse the list if the checkbox is checked
+			if (checkReverse) {
+				processedItems.reverse();
+			}
+			
+			// Join the processed items with the specified delimiter
+			var processedText = processedItems.join(delim);
+			
+			// Add listPrefix before the entire list and listSuffix after the entire list
+			processedText = listPrefix + processedText + listSuffix;
+			
+			// Set the processed text in textboxB
+			document.getElementById("textboxB").value = processedText;
+			
+			//Update copy label
+			var bbox = document.getElementById("bbox");
+			bbox.classList.remove("copied");
+			bbox.textContent = "Copy";
+        }
+		
+		function manualCopy() {
+			document.getElementById("textboxB").select();
+            document.execCommand("copy");
+			
+			var bbox = document.getElementById("bbox");
+			bbox.textContent = "Copied!";
+			bbox.classList.add("copied");
+		}
+		
+		// Function to reset all options to default values
+        function resetToDefaults() {
+            document.getElementById("delim").value = ",";
+            document.getElementById("itemPrefix").value = "";
+            document.getElementById("itemSuffix").value = "";
+            document.getElementById("listPrefix").value = "";
+            document.getElementById("listSuffix").value = "";
+            
+            // Reset quoteType radio buttons
+            document.getElementById("none").checked = true;
+
+            // Reset caseType radio buttons
+            document.getElementById("regular").checked = true;
+
+            // Uncheck all checkboxes
+            document.getElementById("checkReverse").checked = false;
+            document.getElementById("checkSpacing").checked = false;
+            document.getElementById("checkWhitespace").checked = false;
+            document.getElementById("checkDuplicate").checked = false;
+
+            // Trigger the processText function after resetting to defaults
+            processText();
+        }
+
+        // Attach the processText function to events
+		document.getElementById("textboxA").addEventListener("input", processText);
+		document.getElementById("delim").addEventListener("input", processText);
+		document.getElementById("itemPrefix").addEventListener("input", processText);
+		document.getElementById("itemSuffix").addEventListener("input", processText);
+		document.getElementById("listPrefix").addEventListener("input", processText);
+		document.getElementById("listSuffix").addEventListener("input", processText);
+		document.getElementById("checkReverse").addEventListener("change", processText);
+		document.getElementById("checkSpacing").addEventListener("change", processText);
+		document.getElementById("checkWhitespace").addEventListener("change", processText);
+		document.getElementById("checkDuplicate").addEventListener("change", processText);
+		document.getElementById("resetButton").addEventListener("click", resetToDefaults);
+		
+		// Attach the processText function to radio button change events for caseType
+        var caseTypeButtons = document.querySelectorAll('input[name="caseType"]');
+        caseTypeButtons.forEach(function (radioButton) {
+            radioButton.addEventListener("change", processText);
+        });
+		
+		document.getElementById("textboxA").addEventListener("paste", function (event) {
+            // Allow the default behavior to paste the text into textboxA
+            setTimeout(function () {
+                // Trigger the processing function after a brief delay to ensure the new content is available
+                processText();
+
+                // Copy the content of textboxB to the clipboard after a paste operation
+                document.getElementById("textboxB").select();
+                document.execCommand("copy");
+				
+				var bbox = document.getElementById("bbox");
+				bbox.textContent = "Copied!";
+				bbox.classList.add("copied");
+            }, 0);
+        });
+    </script>
+</body>
+</html>
