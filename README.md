@@ -29,6 +29,9 @@ ListTransform is a lightweight, single-page HTML tool designed for local use, em
 4. Adjust settings if needed.
 5. Copy the transformed list from the output textbox on the right.
 
+## Try it Online (Demo)
+You can also try the functionality online without downloading anything. Visit [ListTransform Demo](https://artkuzin.me/listTransform.html) to experience the tool in action. Please note that this online version is provided for demonstration purposes only. The core concept of ListTransform is designed for offline, local use to ensure data privacy and security.
+
 ---
 
 *This is by no means an original concept or a unique solution, this was created with a specific intention to be able to transform lists locally, without pasting sensitive data to third party websites.*
